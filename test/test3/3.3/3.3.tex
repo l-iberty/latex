@@ -1,0 +1,149 @@
+\documentclass{article}
+\usepackage{amssymb, amsmath, geometry}
+\geometry{left=2.0cm,right=2.0cm,top=1.5cm,bottom=1.5cm}
+\begin{document}
+
+\title{\textbf{Cryptanalysis of an Improved User Authentication Scheme with User Anonymity for Wireless Communications}}
+\author{l-iberty(l-iberty@foxmail.com)\\Department of CS\\UESTC, Chengdu, Sichuan, 611731}
+\maketitle
+
+\begin{abstract}
+A user identity anonymity is an important property for roaming services. In 2011, Kang et al. proposed an improved user authentication scheme that guarantees user anonymity in wireless communications.\\
+\emph{\textbf{key words:} cryptanalysis, authentication, anonymity, wireless communication, security}
+\end{abstract}
+
+\section{Introduction}
+\section{Review of Kang et al.'s Scheme}
+\begin{table}
+\centering
+\setlength{\abovecaptionskip}{0pt}
+\setlength{\belowcaptionskip}{5pt} % 调整标题与表格之间的间隔
+\caption{Notations.}
+    \begin{tabular}{|l|l|}
+    \hline
+    $HA$&Home Agent of mobile user\\
+    $FA$&Foreign Agent of the network\\
+    $MU$&Mobile User\\
+    $PM_{MU}$ & A password of $MU$\\
+    $N$ & A strong secret key of $HA$\\
+    $ID_{A}$ & Identity of an entiry $A$\\
+    $E_{P_{A}}(X)$ & Encryption of message using public key of $A$\\
+    $S_{S_{A}}(X)$ & Signature on message using private key of $A$\\
+    $h(\cdot)$ &A one-way hash function\\
+    $\parallel$ & Concatenation\\
+    $\oplus$ &Bitwise exclusive-or operation\\
+    \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Initial Phase}
+When an $MU$ registers with his/her $HA$, the $MU$'s identity $ID_{MU}$ is submitted to the $HA$.
+After receiving $ID_{MU}$ from $MU$, $HA$ generates $PW_{MU}$, $r_{1}$ and r$_{2}$ as follows.
+\allowdisplaybreaks[0] % 0~4表示分页的坚决程度. 0表示尽量不分页
+\begin{align}
+    &PW_{MU} = h(N\parallel ID_{MU})\\
+    &r_{1} = h(N\parallel ID_{HA}) \label{a} \\
+    &r_{2} = h(N\parallel ID_{MU})\oplus ID_{HA}\oplus ID_{MU} \label{b}
+\end{align}
+where $N$ is a secret value kept by $HA$. $HA$ stores $ID_{HA}$, $r_{1}$, $r_{2}$ and $h(\cdot)$ in the smart card of $MU$
+and then sends it with $PW_{MU}$ to $MU$ through a secure channel.
+
+\subsection{First Phase}
+Figure 1 illustrates the first phase of Kang et al.'s scheme. A foreign agent $FA$ authenticates $MU$ by interacting
+with $HA$ as follows.
+\begin{enumerate}
+    \item $MU\rightarrow FA: \{n,(h(ID_{MU})\parallel x_{0}\parallel x),ID_{HA},T_{MU}\}$\\
+    If $MU$ inputs $ID_{MU}$ and $PW_{MU}$ to $MU$'s mobile device, then $MU$'s mobile device chooses secret random values
+    $x_{0}$ and $x$ and computes $n$ and $L$ as follows.
+    \allowdisplaybreaks[0]
+    \begin{align}
+        &n=h(T_{MU}\parallel r_{1})\oplus r_{2}\oplus PW_{MU}\\
+        &L=h(T_{MU}\oplus PW_{MU})
+    \end{align}
+    $MU$'s mobile device sends $MU$'s login message \{$n,(h(ID_{MU}\parallel x_{0}\parallel x))_{L},ID_{HA},T_{MU}$\} to
+    $FA$, where $T_{MU}$ is a current timestamp.
+
+    \item $FA\rightarrow HA: \{b,n,(h(ID_{MU})\parallel x_{0}\parallel x)_{L},T_{MU},S_{S_{FA}},((h(ID_{MU})\parallel x_{0}\parallel x_{L},T_{MU},Cert_{FA})),Cert_{FA},T_{FA}\}$\\
+    $FA$ checks the validity of $T_{MU}$. If it is valid, then $FA$ chooses secret random number $b$. $FA$ then sends $b$,
+    the $MU$'s login message containing \{$n,(h(ID_{MU}\parallel x_{0}\parallel x))_{L},ID_{HA},T_{MU}$\}, a certificate
+    $Cert_{FA}$, timestamp $T_{FA}$, and the corresponding signature on the login message by $FA$'s private key $S_{FA}$ to $HA$.
+
+    \item $HA\rightarrow FA:\{c,W,S_{S_{HA}}(h(b,c,W,Cert_{HA})),Cert_{FA},T_{HA}\}$\\
+    $HA$ checks the validity of certificate $Cert_{FA}$ and timestamp $T_{FA}$. If they are valid, then $HA$ computes $MU$'s
+    real identity $ID_{MU}$ as follows.
+    \begin{equation}
+        ID_{MU}=h(T_{MU}\parallel h(N\parallel ID_{HA}))\oplus n\oplus ID_{HA}
+    \end{equation}
+    $HA$ computes $L=h(T_{MU}\parallel h(N\parallel ID_{HA}))$ with his/her secret $N$ and decrypts $(h(ID_{MU})\parallel x_{0}\parallel x)$.
+    Then, $HA$ verifies if $MU$ is a legal use by checking $h(ID_{MU})=h(ID_{MU})\prime$, where $h(ID_{MU})$ is computed with
+    $ID_{MU}$ on the login message and $h(ID_{MU})\prime$ of the decrypting result \{$h(ID_{MU})\prime\parallel x_{0}\prime\parallel x\prime$\}.
+\end{enumerate}
+
+\subsection{Second Phase}
+When $MU$ visits $FA$ at the $i$-th session, $MU$ sends the following login message to $FA$.
+\begin{enumerate}
+    \item $MU\rightarrow FA: TCert_{MU},(x_{i}\parallel TCert_{MU}\parallel \text{Other Information})_{k_{i}}$\\
+    The new $i$-th session key $k_i$ can be derived from the unexpired previous secret $x_{i-1}$ and the fixed secret value $x$ as
+    \begin{equation}
+    k_{i}=h(h(h(N\parallel ID_{MU}))\parallel x\parallel x_{i-1})
+    \end{equation}
+    where $i=1,\ldots,n.$
+
+    \item Upon receiving a login message from $MU$, $FA$ decrypts $(x_{i}\parallel TCert_{MU}\parallel \text{Other Information})_{k_{i}}$
+    with $k_i$ and newly saves $(TCert_{MU},h(PW_{MU}),x_i)$ for the next communication.
+\end{enumerate}
+
+\section{Anonymity Problem of Kang et al.'s Scheme}
+Kang et al.\cite{bib7} improved Wu et al.'s scheme\cite{bib3} and Wei et al.'s scheme\cite{bib6} to provide anonymity. ... as follows.
+\begin{enumerate}
+    \item Any legal user $MU$ can directly obtain $h(N\parallel ID_{HA})$ from $r_1$ in his/her smart card because
+    $r_1=h(N\parallel ID_{HA})$ from the Eq.(\ref{a}). % \ref{a}引用公式a
+
+    \item The legal user ... as follows.
+    \begin{equation}
+    \begin{split}
+    n\prime &= h(T\prime_{MU}\parallel r_1)\oplus r_2\prime \oplus PW\prime_{MU}\\
+            &= h(T\prime_{MU}\parallel r_1)\oplus h(N\parallel ID\prime_{MU})\oplus ID_{HA}\oplus ID\prime_{MU}\oplus PW\prime_{MU}\\
+            &= h(T\prime_{MU}\parallel r_1)\oplus ID_{HA}\oplus ID_{MU}
+    \end{split}
+    \end{equation}
+
+    \item With obtained $r_1=h(N\parallel ID_{HA})$ and collected message $\{n\prime,ID_{HA},T\prime_{MU}\}$,
+    $MU$ can get the real identity $ID\prime_{MU}$ of the other mobile user $MU\prime$ as $HA$ does at step (\ref{b})
+    in the first phase as follows.
+    \begin{equation}
+    \begin{split}
+    ID\prime_{MU} &= n\prime\oplus ID_{HA}\oplus h(T\prime_{MU}\parallel r_1)\\
+                  &= h(T\prime_{MU}\parallel r_1)\oplus ID_{HA}\oplus ID\prime_{MU}\oplus ID_{HA}\oplus h(T\prime_{MU}\parallel r_1)\\
+                  &= ID\prime_{MU}
+    \end{split}
+    \end{equation}
+    As a result, legal mobile user $MU$'s anonymity cannot be preserved in Kang et al.'s scheme.
+\end{enumerate}
+
+\section{Conclusions}
+This letter demonstrated that recently published wireless authentication scheme by Kang et al. still cannot provide
+anonymity. Thereforem Kang et al.'s scheme did not solved the problem of user anonymity that was pointed out Zeng et.al
+\cite{bib4} and Lee et al.\cite{bib5}.
+
+\section*{Acknowledgements} % 添加*取消自动编号
+This research is supported by Basic Science Research Program through the National Research Foundation of ...
+
+\begin{thebibliography}{99}
+\bibitem{bib1}J.Zhu and J.Ma, "A new authentication scheme with anonymity for wireless environment,"
+IEEE Trans.Consum.Electron.,vol.50.no.1,pp.230-234,2004.
+\bibitem{bib2}C.C.Lee, M.S.Hwang, and I.E.Liao, "Security enhancement on a new authentication scheme with anonymity for wireless environ- ments,"
+IEEE Trans. Ind. Electron., vol.53, no.5, pp.1683–1687, 2006.
+\bibitem{bib3}C.C.Wu, W.B.Lee, and W.J.Tsaur, "A secure authentication scheme with anonymity for wireless communications,"
+IEEE Commun. Lett., vol.12, no.10, pp.722–723, 2008.
+\bibitem{bib4}P.Zeng, Z.Cao, K.R.Choo, and S.Wang, "On the anonymity of some authentication schemes for wireless communications,"
+IEEE Com- mun. Lett., vol.13, no.3, pp.170–171, 2009.
+\bibitem{bib5}J.Lee, J.H.Chang, and D.H.Lee, "Security flaw of authentication scheme with anonymity for wireless communications,"
+IEEE Commun. Lett., vol.13, no.5, pp.292–293, 2009.
+\bibitem{bib6}Y.Wei, H.Qiu, and Y.Hu, "Security analysis of authentication scheme with anonymity for wireless environments,"
+ICCT (International Conference on Communication Technology), 2006.
+\bibitem{bib7}M.Kang, H.Rhee, and J.Choi, "Improved user authentication scheme with user anonymity forwireless communications,"
+IEICE Trans. Fundamentals, vol.E94-A, no.2, pp.860–864, Feb. 2011.
+\end{thebibliography}
+
+\end{document}

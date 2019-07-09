@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage{amssymb, amsmath, geometry, CJK}
+\geometry{left=2.0cm,right=2.0cm,top=1.5cm,bottom=1.5cm}
+\begin{document}
+\begin{CJK*}{GBK}{song}
+
+\section{简单的符号}
+\subsection{一些公式}
+\begin{align*}
+a\bmod b\\
+x\equiv a\pmod{b}\\
+{\rm sin} x\\ % 罗马体命令\rm
+\sin{x}\\
+\lim_{x \to 0}\frac{\sin{x}}{x}=1\\
+\lim_{x \to -\infty}e^{x}=0\\
+\lim_{x \to +\infty}e^{x}=\infty\\
+\overline{x}=\frac{1}{n}\sum_{i=1}^{n}x_i\\
+\vec{a}\cdot\vec{b}=\Vert\vec{a}\Vert\Vert\vec{b}\Vert\cos<\vec{a},\vec{b}>\\
+\underbrace{a+b+\ldots+z}_{26}
+\end{align*}
+\subsection{文中的公式 vs 单独的公式}
+$\sum_{i=1}^{n} \quad \sum\limits_{i=1}^{n} \quad \int_{0}^{\frac{\pi}{2}}\sin xdx \quad \prod_{i=1}^{n}$ % 文中的公式. \limits 强制将求和号的上下标写在上面和下面
+$$\sum_{i=1}^{n} \quad \int_{0}^{\frac{\pi}{2}}\sin xdx \quad \prod_{i=1}^{n}$$ % 单独的公式
+
+\section{数组环境（矩阵、行列式）}
+\subsection{一个简单的矩阵}
+\begin{displaymath}
+\mathbf{A}=
+\left( % 左大括号,类似地,\left\{,\left[, \left|
+\begin{array}{ccc} % {ccc}表示各个列元的对齐方式. c=center, l=left, r=right
+a_{11}&a_{12}&a_{13}\\
+a_{21}&a_{22}&a_{23}
+\end{array}
+\right) % 右大括号,与左大括号\left(配对出现
+\end{displaymath}
+\subsection{省略号}
+编排矩阵或行列式，就会遇到特别的省略号，具有不同的方向.
+\begin{displaymath}
+\mathbf{A}=
+\left(
+\begin{array}{cccc}
+a_{11}&a_{12}&\ldots &a_{1n}\\ % \ldots水平, 比\cdots略低, 一般用于x_1,x_2,\ldots,x_n
+a_{21}&a_{22}&\ldots &a_{2n}\\
+\vdots&\vdots&\ddots&\vdots\\ % \vdots垂直 \ddots对角线
+a_{n1}&a_{n2}&\ldots &a_{nn}
+\end{array}
+\right)
+\end{displaymath}
+\begin{displaymath}
+\mathbf{D}=
+\left|
+\begin{array}{ccc}
+a+b+c & b+c & \ldots\\
+a+b & a+c & \ldots\\
+\vdots & \vdots & \ddots
+\end{array}
+\right|
+\end{displaymath}
+
+\section{大括号排版}
+$\backslash$left加边界符结合$\backslash$array或$\backslash$align命令.
+\begin{displaymath}
+F^{HLLC}=\left\{
+\begin{array}{rcl}
+F_L   & & (0 < S_L)\\
+F^*_L & & (S_L \leq 0 < S_H)\\
+F^*_R & & (S_M \leq 0 < S_R)\\
+F_R   & & (S_R \leq 0)
+\end{array}
+\right.
+\end{displaymath}
+使用$\backslash$cases命令.
+\begin{displaymath}
+F^{HLLC}=
+\begin{cases}
+F_L   & (0 < S_L)\\
+F^*_L & (S_L \leq 0 < S_H)\\
+F^*_R & (S_M \leq 0 < S_R)\\
+F_R   & (S_R \leq 0)
+\end{cases}
+\end{displaymath}
+
+\section{一些复杂的公式}
+\begin{equation}f(t)=A_0+\sum_{n=1}^{\infty}A_n(\sin{n\omega t + \varphi_n})=\frac{a_0}{2}+\sum_{n=1}^{\infty}(a_n\cos{nx}+b_n\sin{nx})\end{equation}
+
+\end{CJK*}
+\end{document}
